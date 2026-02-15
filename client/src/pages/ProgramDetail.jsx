@@ -81,7 +81,7 @@ export default function ProgramDetail() {
 
     const fetchProgram = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/programs/${id}/full`);
+            const res = await fetch(`/api/programs/${id}/full`);
             if (!res.ok) throw new Error('Error fetching');
             const data = await res.json();
             setProgram(data);
@@ -112,7 +112,7 @@ export default function ProgramDetail() {
 
     const addWeek = async () => {
         const nextWeekNum = program.weeks.length + 1;
-        const res = await fetch('http://localhost:3001/api/weeks', {
+        const res = await fetch('/api/weeks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ program_id: id, week_number: nextWeekNum })
@@ -127,7 +127,7 @@ export default function ProgramDetail() {
     const deleteWeek = async (weekId, e) => {
         e.stopPropagation(); // Evitar que se colapse/expanda al borrar
         if (!confirm("¿Estás seguro de eliminar esta semana y todo su contenido?")) return;
-        await fetch(`http://localhost:3001/api/weeks/${weekId}`, { method: 'DELETE' });
+        await fetch(`/api/weeks/${weekId}`, { method: 'DELETE' });
         fetchProgram();
     };
 
@@ -136,7 +136,7 @@ export default function ProgramDetail() {
         const name = prompt("Nombre del día (ej: Pierna, Lunes):");
         if (!name) return;
 
-        await fetch('http://localhost:3001/api/days', {
+        await fetch('/api/days', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ week_id: weekId, name, day_order: currentDaysCount + 1 })
@@ -150,7 +150,7 @@ export default function ProgramDetail() {
     };
 
     const saveExercise = async (formData) => {
-        await fetch('http://localhost:3001/api/exercises', {
+        await fetch('/api/exercises', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -165,7 +165,7 @@ export default function ProgramDetail() {
 
     const deleteExercise = async (exId) => {
         if (!confirm("¿Borrar ejercicio?")) return;
-        await fetch(`http://localhost:3001/api/exercises/${exId}`, { method: 'DELETE' });
+        await fetch(`/api/exercises/${exId}`, { method: 'DELETE' });
         fetchProgram();
     };
 

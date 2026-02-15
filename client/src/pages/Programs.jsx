@@ -8,7 +8,7 @@ export default function Programs() {
     const [newProgramName, setNewProgramName] = useState('');
 
     const fetchPrograms = async () => {
-        const res = await fetch('http://localhost:3001/api/programs');
+        const res = await fetch('/api/programs');
         const data = await res.json();
         setPrograms(data);
     };
@@ -21,7 +21,7 @@ export default function Programs() {
         e.preventDefault();
         if (!newProgramName) return;
 
-        await fetch('http://localhost:3001/api/programs', {
+        await fetch('/api/programs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newProgramName, description: 'Nueva rutina personalizada' })
@@ -36,7 +36,7 @@ export default function Programs() {
         e.preventDefault(); // Prevenir navegación
         if (!window.confirm('¿Seguro que quieres borrar este programa?')) return;
 
-        await fetch(`http://localhost:3001/api/programs/${id}`, { method: 'DELETE' });
+        await fetch(`/api/programs/${id}`, { method: 'DELETE' });
         fetchPrograms();
     };
 

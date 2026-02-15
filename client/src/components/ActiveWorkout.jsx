@@ -61,7 +61,7 @@ export default function ActiveWorkout({ dayData, onFinish }) {
 
     const handleUpdateExerciseName = async (exerciseId, newName) => {
         // 1. Actualizar DB
-        await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+        await fetch(`/api/exercises/${exerciseId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newName })
@@ -84,7 +84,7 @@ export default function ActiveWorkout({ dayData, onFinish }) {
 
         // 2. Actualizar DB (Incrementar target_sets)
         const currentCount = sessionData[exerciseId]?.length || 0;
-        await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+        await fetch(`/api/exercises/${exerciseId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ target_sets: currentCount + 1 })
@@ -107,7 +107,7 @@ export default function ActiveWorkout({ dayData, onFinish }) {
 
         // 2. Actualizar DB (Decrementar target_sets)
         const currentCount = sessionData[exerciseId]?.length || 1;
-        await fetch(`http://localhost:3001/api/exercises/${exerciseId}`, {
+        await fetch(`/api/exercises/${exerciseId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ target_sets: Math.max(0, currentCount - 1) })
@@ -137,7 +137,7 @@ export default function ActiveWorkout({ dayData, onFinish }) {
         });
 
         try {
-            await fetch('http://localhost:3001/api/workouts', {
+            await fetch('/api/workouts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
