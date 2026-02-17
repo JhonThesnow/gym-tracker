@@ -1,10 +1,10 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
+// Nos aseguramos de conectar al archivo correcto
 const db = new Database(path.resolve(__dirname, 'gym.db'), { verbose: console.log });
-db.pragma('journal_mode = WAL'); // Optimización para concurrencia y velocidad
+db.pragma('journal_mode = WAL');
 
-// Inicialización de Tablas (Schema)
 const initScript = `
   CREATE TABLE IF NOT EXISTS programs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +23,7 @@ const initScript = `
   CREATE TABLE IF NOT EXISTS program_days (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     week_id INTEGER,
-    name TEXT, -- Ej: "Día de Pierna" o "Lunes"
+    name TEXT,
     day_order INTEGER,
     FOREIGN KEY(week_id) REFERENCES program_weeks(id) ON DELETE CASCADE
   );
@@ -33,17 +33,17 @@ const initScript = `
     day_id INTEGER,
     name TEXT NOT NULL,
     target_sets INTEGER DEFAULT 3,
-    target_reps TEXT, -- Texto para permitir rangos "8-12"
+    target_reps TEXT,
+    target_weight REAL,
     target_rpe REAL,
     notes TEXT,
     exercise_order INTEGER,
     FOREIGN KEY(day_id) REFERENCES program_days(id) ON DELETE CASCADE
   );
 
-  -- Historial de Sesiones (Logs)
   CREATE TABLE IF NOT EXISTS workout_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    day_id INTEGER, -- Link al día del programa planeado
+    day_id INTEGER,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     notes TEXT
   );
@@ -51,7 +51,7 @@ const initScript = `
   CREATE TABLE IF NOT EXISTS set_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     workout_log_id INTEGER,
-    exercise_name TEXT, -- Guardamos nombre por si el ejercicio se borra del plan
+    exercise_name TEXT,
     set_number INTEGER,
     weight REAL,
     reps INTEGER,

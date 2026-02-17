@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ChevronRight, Trash2 } from 'lucide-react';
+import { Plus, ChevronRight, Trash2, AlertTriangle } from 'lucide-react';
 
 export default function Programs() {
     const [programs, setPrograms] = useState([]);
     const [isCreating, setIsCreating] = useState(false);
     const [newProgramName, setNewProgramName] = useState('');
+    const [error, setError] = useState(null);
 
     const fetchPrograms = async () => {
-        const res = await fetch('/api/programs');
-        const data = await res.json();
-        setPrograms(data);
+        try {
+            const res = await fetch('/api/programs');
+            if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
+
+            const data = await res.json();
+            // Verificamos que sea un array para evitar pantallas blancas
+            if (Array.isArray(data)) {
+                setPrograms(data);
+                setError(null);
+            } else {
+                console.error("Respuesta inválida:", data);
+                setError("Error: El servidor no devolvió una lista válida.");
+            }
+        } catch (err) {
+            console.error(err);
+            setError("No se pudo conectar con el servidor. Revisa que 'npm run dev' esté corriendo.");
+        }
     };
 
     useEffect(() => {
@@ -21,19 +36,28 @@ export default function Programs() {
         e.preventDefault();
         if (!newProgramName) return;
 
-        await fetch('/api/programs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: newProgramName, description: 'Nueva rutina personalizada' })
-        });
+        try {
+            const res = await fetch('/api/programs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newProgramName, description: 'Nueva rutina personalizada' })
+            });
 
-        setNewProgramName('');
-        setIsCreating(false);
-        fetchPrograms();
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || "Error al crear");
+            }
+
+            setNewProgramName('');
+            setIsCreating(false);
+            fetchPrograms();
+        } catch (err) {
+            alert(`Error al crear programa: ${err.message}`);
+        }
     };
 
     const handleDelete = async (id, e) => {
-        e.preventDefault(); // Prevenir navegación
+        e.preventDefault();
         if (!window.confirm('¿Seguro que quieres borrar este programa?')) return;
 
         await fetch(`/api/programs/${id}`, { method: 'DELETE' });
@@ -55,6 +79,13 @@ export default function Programs() {
                 </button>
             </div>
 
+            {error && (
+                <div className="bg-red-900/50 border border-red-500 text-red-200 p-4 rounded-xl mb-6 flex items-center gap-3">
+                    <AlertTriangle />
+                    {error}
+                </div>
+            )}
+
             {isCreating && (
                 <form onSubmit={handleCreate} className="bg-surface p-4 rounded-xl border border-gray-700 mb-6 animate-fade-in">
                     <label className="block text-sm text-gray-400 mb-2">Nombre del Programa</label>
@@ -74,6 +105,10 @@ export default function Programs() {
             )}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {programs.length === 0 && !error && (
+                    <p className="text-gray-500 col-span-full text-center py-10">No hay programas. ¡Crea el primero!</p>
+                )}
+
                 {programs.map(program => (
                     <Link
                         key={program.id}
